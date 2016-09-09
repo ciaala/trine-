@@ -27,7 +27,9 @@ namespace ds {
 
         const string &getNext();
 //        friend ostream &operator<<(ostream &ost, const trine_iterator &iterator);
-        stack<unsigned long, deque<unsigned long, allocator<unsigned long>>> getNextPosition() const;
+        stack<unsigned long,
+                deque<unsigned long, allocator<unsigned long>>
+        > getNextPosition() const;
         string toString();
     };
 
@@ -37,7 +39,7 @@ namespace ds {
         TrineNode(const string &word, const string &prefix, const unsigned long position, TrineNode *parent = nullptr);
 
         const TrineNode *parent;
-        const string word;
+        string word;
         const string prefix;
         const unsigned long position;
 

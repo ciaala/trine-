@@ -12,23 +12,25 @@ namespace ds {
 
     void Trine::addWord(const string &word) {
         TrineNode *trineNode = this->getTrineNode(word);
-        if (trineNode != nullptr) {
-            if (trineNode->word == word) {
-                cerr << "" << endl;
-                return;
-            }
-            if (trineNode->isLeaf() && trineNode->hasChildren()) {
+        if (trineNode->word == word) {
+            cerr << "word is already tracked '" << word << "'" << endl;
+            return;
+        } else {
+            // the node has a word
+            // the word is longer than the prefix
+
+            if (trineNode->hasWord()
+                && trineNode->word.length() > (trineNode->position + 1)) {
                 // the trinode contains a word
 
-                trineNode->addChild(word);
+                trineNode->addChild(trineNode->word);
+                trineNode->word = "";
+                addWord(word);
             } else {
                 trineNode->addChild(word);
             }
-            // TODO
-        } else {
-            this->createChildTrineNode(word, 0);
-
         }
+        // TODO
     }
 
     trine_iterator Trine::getWordWithPrefix(const string &prefix) {
@@ -36,22 +38,43 @@ namespace ds {
         return trine_iterator(node);
     }
 
+    /**
+     * Return the TrineNode with the longest match against the prefix
+     *
+     * @param prefix
+     * @return
+     */
     TrineNode *Trine::getTrineNode(const string &prefix) {
 
 
         unsigned long position = 0;
-        TrineNode *current;
+        TrineNode *current = this;
         // prefix[position];
-        //current = this->prefixChildrenMap[];
+        //current = this->prefix_ChildrenMap[];
 
         //findNextTreeNode(prefix.at(position), this->children);
-        current = this;
+
+        /*
         do {
-            char c = prefix.at(position);
-            current = current->getChild(c);
+
+            c = prefix.at(position);
+
+             if ( current->prefixChildrenMap.count(c) > 0) {
+                current = current->prefixChildrenMap.at(c);
+            } else {
+                current = nullptr;
+            }
             position++;
 
-        } while (current != nullptr && !(current->hasWord() && current->word.compare(prefix)));
+        }
+        // current exists
+        */
+        char c = prefix.at(position);
+        while (current != nullptr && current->prefixChildrenMap.count(c) > 0) {
+            current = current->prefixChildrenMap.at(c);
+            c = prefix.at(position);
+        }
+        //&& !(current->hasWord() && current->word.compare(prefix)));
         return current;
     }
 
@@ -62,7 +85,7 @@ namespace ds {
         this->prefixChildrenMap[child->getPrefix()] = child;
     }
 
-    Trine::Trine() : TrineNode("", "", 0, nullptr) {
+    Trine::Trine() : TrineNode("", "", -1, nullptr) {
 
 
     }
@@ -71,11 +94,11 @@ namespace ds {
         if (current == nullptr) {
             current = this->node;
         } else if (current->word.size() > 0) {
-            
+
         } else if (current->hasChildren()) {
             // TODO
             // INSERT an INDEX
-
+            unsigned long index;
             current = current->getChild(index);
         } else {
 
@@ -83,27 +106,37 @@ namespace ds {
         return current->word;
     }
 
-    trine_iterator::trine_iterator(TrineNode *node) : node(node) {
-
-    }
+    trine_iterator::trine_iterator(TrineNode *node)
+            : node(node) {}
 
     stack<unsigned long> trine_iterator::getNextPosition() const {
         stack<unsigned long> pnext = this->positions;
         const TrineNode *scan = current;
-        while (scan->children.size() == pnext.top()) {
+        while (pnext.size() > 0 && scan->children.size() == pnext.top()) {
 
             pnext.pop();
             pnext.top();
-            pnext.emplace();
-
             scan = scan->parent;
         }
+        //
+        // there are children and
+        // and we have not reached the last children
+        //
+        if (scan->children.size() > 0 &&
+            (pnext.size() == 0 ||
+             scan->children.size() > pnext.top())) {
+            unsigned long next = pnext.top() + 1;
+            pnext.emplace(next);
+        }
+
         return pnext;
     }
 
     bool trine_iterator::hasNext() const {
-        bool result = false;
-        if (this->current->children.size() > positions.top()) {
+        bool result;
+        if (this->current != nullptr
+            && this->positions.size() > 0
+            && this->current->children.size() > this->positions.top()) {
             result = true;
         } else {
             result = !this->getNextPosition().empty();
@@ -115,7 +148,7 @@ namespace ds {
         ostringstream ost;
         bool hasNext;
         do {
-            ost << this->getNext();
+            ost << "node: " << this->getNext();
             hasNext = this->hasNext();
             if (hasNext) {
                 ost << ",";
@@ -147,7 +180,13 @@ namespace ds {
     }
 
     void TrineNode::addChild(const string &word) {
+        // Add a child node
+        this->createChildTrineNode(word, this->position + 1);
+        /*
+            if (this->hasWord()) {
 
+            }
+        */
     }
 
     char TrineNode::getPrefix() const {
