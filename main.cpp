@@ -1,5 +1,5 @@
 #include <iostream>
-#include "trine/trine.h"
+#include "trine/Trine.h"
 
 using namespace ds;
 

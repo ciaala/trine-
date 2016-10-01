@@ -2,7 +2,7 @@
 // Created by Francesco Fiduccia on 8/6/16.
 //
 
-#include "trine.h"
+#include "Trine.h"
 #include <iostream>
 #include <algorithm>
 #include <map>

@@ -4,8 +4,6 @@
 
 #include <gtest/gtest.h>
 
-#include "trine/Trine.h"
-
 using namespace std;
 
 namespace {
